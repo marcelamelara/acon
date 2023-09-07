@@ -44,9 +44,12 @@ In a nutshell, ACON runs containers in a small purpose-built [TD][intel-tdx] (re
 
 ## Getting Started
 
-See README.md files of [acond](acond/) and [aconcli](aconcli/) for build instructions.
+:warning: These steps require a TDX-enabled version of QEMU running on the host machine!
 
-[doc/TDGuest.md](doc/TDGuest.md) details how to build TD guest kernel and initrd images.
+First, see README.md files of [acond](acond/) and [aconcli](aconcli/) for build instructions.
+
+Then, follow [doc/TDGuest.md](doc/TDGuest.md) for details on how to build the TD guest kernel and initrd images needed
+for running ACON.
 
 ## License
 

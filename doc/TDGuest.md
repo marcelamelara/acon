@@ -8,6 +8,30 @@ This chapter contains simple steps for building the Linux kernel and the initrd 
 
 **Note**: Audience is assumed familiar with the boot flow of TDs and [Direct Linux Boot][qemu-doc-linuxboot]. [TD Measured Boot](#td-measured-boot) provides a brief introduction to those topics.
 
+### Pre-requisites
+
+On Ubuntu 22.04 LTS, install the following packages:
+```bash
+sudo apt install bison flex libvirt-daemon docker docker-compose
+```
+You may need to add proxy settings to your docker client and daemon configurations.
+
+Next, create a symlink to your QEMU binary:
+```bash
+mkdir $HOME/bin
+ln -s /bin/qemu-system-x86_64 $HOME/bin/qemu
+```
+
+Export the `$HOME/bin/qemu` to your $PATH variable.
+
+Finally, add your user to the following groups, if not already a members:
+```bash
+useradd -aG docker $USER
+useradd -aG kvm $USER
+```
+
+Logout, and back in, for the useradds to take effect.
+
 ### Building Linux Kernel
 
 Firstly, the kernel source code must be downloaded. TDX support is being upstreamed at the time this guide is written, and the latest TDX guest code can be accessed at https://github.com/intel/tdx/tree/guest-next. The command below clones the repo.
@@ -24,16 +48,16 @@ cd /path/to/build_dir
 
 cp /path/to/acon_source/doc/config-acon .config
 
-make -C /path/to/kernel_source O=$PWD olddefconfig
+make -C /path/to/cloned_tdx O=$PWD olddefconfig
 ```
 
-**Note:** [`config-acon`][file-config-acon] is a symbolic link pointing to the real kernel configuration file whose name contains at the end the first 12 digits of the git commit ID of the source tree - e.g, given the configuration file named `config-6.4.0-rc1-acon-00117-ga324aa0d829e`, the source tree for which it configured originally can be viewed at https://github.com/intel/tdx/tree/a324aa0d829e, and can be checked out locally using the command below.
+**Note:** [`config-acon`][file-config-acon] is a symbolic link pointing to the real kernel configuration file whose name contains at the end the first 12 digits of the *latest* git commit ID of the source tree - e.g, given the configuration file named `config-6.4.0-rc1-acon-00117-ga324aa0d829e`, the source tree for which it configured originally can be viewed at https://github.com/intel/tdx/tree/ga324aa0d829e, and can be checked out locally using the command below.
 
-```sh
-git checkout a324aa0d829e
-```
+    ```sh
+    git checkout a324aa0d829e
+    ```
 
-Finally, build the kernel.
+Finally, build the TD guest kernel.
 
 ```sh
 make -j$(getconf _NPROCESSORS_ONLN)
@@ -42,7 +66,7 @@ make -j$(getconf _NPROCESSORS_ONLN)
 After a successful build, the kernel binary will be `/path/to/build_dir/arch/x86/boot/bzImage`, and can be installed (i.e., copied then renamed to `vmlinuz-VERSION...`) into a user-specified directory by the command below.
 
 ```sh
-make INSTALL_PATH=/path/to/target/dir install
+make INSTALL_PATH=/path/to/td_kernel_target install
 ```
 
 ### Creating initrd (Initial RAM Disk) Image
@@ -121,7 +145,7 @@ Here are the steps to create an initrd from the [`busybox` docker container imag
 6. Finally, we can launch a VM using the initrd image and the kernel built previously. Please note the script [`start-qemu.sh`](../scripts/start-qemu.sh) used below wraps a complex *QEMU* command line that is explained in details in [QEMU Command Line for Launching TD][qemu-cmdline].
 
    ```sh
-   RD=initrd-bbox.cpio.xz DRV=256m.raw /path/to/acon_source/scripts/start-qemu.sh /path/to/vmlinuz-6.4.0-rc1-acon-00117-ga324aa0d829e
+   RD=initrd-bbox.cpio.xz DRV=256m.raw /path/to/acon_source/scripts/start-qemu.sh /path/to/td_kernel_target/vmlinuz-*-acon-g93e6d5b317f1
    ```
 
    If everything works out smoothly, a Linux command prompt will be brought up and the command below in the guest's terminal will show 256MB of total swap space.
@@ -132,7 +156,7 @@ Here are the steps to create an initrd from the [`busybox` docker container imag
    **Note**: On a TDX-enabled platform, a TD (instead of a regular VM) can be launched by setting the environment variable `TD` to any non-empty string, like below.
 
    ```sh
-   TD=1 RD=initrd-bbox.cpio.xz DRV=256m.raw /path/to/acon_source/scripts/start-qemu.sh /path/to/vmlinuz-6.4.0-rc1-acon-00117-ga324aa0d829e
+   TD=1 RD=initrd-bbox.cpio.xz DRV=256m.raw /path/to/acon_source/scripts/start-qemu.sh /path/to/td_kernel_target/vmlinuz-*-acon-ga324aa0d829e
    ```
 
 #### `alpine` Based initrd

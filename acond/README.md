@@ -13,10 +13,13 @@ ACON Daemon is responsible for:
 Build and Install ACON Daemon
 ---------------------------
 ### Prerequisites:
-- Ensure that you have Fedora Linux 36.
-- Use the following command to install the required tools:
+- Fedora Linux 36:
   ```bash
     $ sudo yum install glibc-devel musl-gcc protobuf-compiler make git
+  ```
+- Ubuntu 22.04 LTS:
+  ```bash
+    $ sudo apt install build-essential musl-dev protobuf-compiler make git
   ```
   **Note**: these packages can be installed with different package management commands in different Linux distros.
 - Follow the instructions in ["Install Rust"](https://www.rust-lang.org/tools/install) to install rust. Basically, just run the following command for Linux distros.
