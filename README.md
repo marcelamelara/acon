@@ -44,7 +44,7 @@ In a nutshell, ACON runs containers in a small purpose-built [TD][intel-tdx] (re
 
 ## Getting Started
 
-:warning: These steps require a TDX-enabled version of QEMU running on the host machine!
+:warning: These steps require a TDX-enabled version of QEMU running on the host machine! See https://github.com/intel/tdx-tools to get started.
 
 First, see README.md files of [acond](acond/) and [aconcli](aconcli/) for build instructions.
 
